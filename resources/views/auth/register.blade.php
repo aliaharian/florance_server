@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name=”robots” content=”noindex,nofollow”>
 
-    <title>ثبت نام در حوله ارس</title>
+    <title>ثبت نام در فلورانس</title>
 
     <!-- Font Icon -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
@@ -40,24 +40,20 @@
                     <h2 class="form-title text-sm-center">ثبت نام در فلورانس</h2>
                     <form method="POST" action="register" class="register-form" id="register-form">
                         @csrf
-
-                        @if ($errors->has('name'))
-                            <div class=" alert alert-danger text-center" style="direction: rtl" role="alert">
-                                {{ $errors->first('name') }}
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
-
-                        @if ($errors->has('email'))
-                            <div class=" alert alert-danger text-center" style="direction: rtl" role="alert">
-                                {{ $errors->first('email') }}
+                        @if(session()->has('error'))
+                            <div class="alert alert-danger">
+                                {{ session()->get('error') }}
                             </div>
                         @endif
-                        @if ($errors->has('password'))
-                            <div class=" alert alert-danger text-center" style="direction: rtl" role="alert">
-                                {{ $errors->first('password') }}
-                            </div>
-                        @endif
-
 
                         <div class="form-group">
                             <label for="name"><i class="fa fa-user material-icons-name"></i></label>

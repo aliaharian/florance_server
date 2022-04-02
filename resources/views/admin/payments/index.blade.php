@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> سفارشات</title>
+    <title> تراکنش ها</title>
 
     @include('admin.includes.headerLinks')
 
@@ -29,33 +29,23 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                سفارشات
+                تراکنش ها
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> خانه</a></li>
-                <li class="active"> سفارشات</li>
+                <li class="active"> تراکنش ها</li>
             </ol>
         </section>
 
         <!-- Main content -->
         <section class="content">
             <div class="row">
-                <div class="col-md-3">
-                    <a href="{{route('orders.create')}}" class="btn btn-primary btn-block margin-bottom"> ثبت سفارش
-                        جدید</a>
 
-                    <div class="box box-solid">
-                        <!-- /.box-body -->
-                    </div>
-                    <!-- /. box -->
-
-                    <!-- /.box -->
-                </div>
                 <!-- /.col -->
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">سفارشات</h3>
+                            <h3 class="box-title">تراکنش ها</h3>
 
                             <div class="box-tools pull-right">
                                 <div class="has-feedback">
@@ -80,7 +70,7 @@
                                 </button>
 
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$payments->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>
@@ -91,61 +81,60 @@
 
                                     <thead>
                                     <tr>
-                                        <th class="mailbox-star">کد سفارش</th>
-                                        <th class="mailbox-star"> سفارش دهنده</th>
-                                        <th class="mailbox-star"> تاریخ</th>
+                                        <th class="mailbox-star">کد تراکنش</th>
+                                        <th class="mailbox-star"> مبلغ</th>
+                                        @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
+                                            <th class="mailbox-star">نام کاربر</th>
+                                        @endif
+                                        <th class="mailbox-star">بابت</th>
+                                        <th class="mailbox-star">تاریخ</th>
+                                        <th class="mailbox-star">کد پیگیری زرین پال</th>
                                         <th class="mailbox-star">وضعیت</th>
-                                        <th class="mailbox-star">عملیات</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
-                                    @foreach($orders as $order)
+                                    @foreach($payments as $pay)
                                         @php
-                                            $json = json_decode($order->meta);
+                                            $json = json_decode($pay->meta );
+
                                         @endphp
                                         <tr>
-                                            <td class="mailbox-star">{{$order->id}}</td>
+                                            <td class="mailbox-star">{{$pay->id}}</td>
                                             <td class="mailbox-star dir-rtl">
-                                                {{$order->user->name}} {{$order->user->last_name}}
+                                                {{number_format($pay->price)}} ریال
+                                            </td>
+                                            @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
+                                                <td class="mailbox-star dir-rtl">
+                                                    {{$pay->payment->order->user->name}} {{$pay->payment->order->user->last_name}}
+                                                </td>
+                                            @endif
+                                            <td>
+                                                <a href="/orders/{{$pay->payment->order->id}}">سفارش
+                                                    شماره {{$pay->payment->order->id}}</a>
                                             </td>
                                             <td>
-                                                {{jDate($order->created_at)->format('%d %B %Y')}}
+                                                {{jDate($pay->created_at)->format('%d %B %Y')}}
                                             </td>
                                             <td class="mailbox-star">
-                                                <div
-                                                    class="label label-{{state_color($order->state)}}"> {{state_p($order->state)}} </div>
+                                                {{substr($pay->transaction_token,23,400)}}
                                             </td>
+                                            <td class="mailbox-star">
+                                                @if(@$json)
+                                                    @if(@$json->data->code==100 || @$json->data->code==101)
+                                                        <div
+                                                            class="label label-success"> موفق
+                                                        </div>
+                                                    @else
+                                                        <div
+                                                            class="label label-danger"> ناموفق
+                                                        </div>
+                                                    @endif
 
-
-                                            <td class="mailbox-subject d-flex align-items-center justify-content-between items-m-5px">
-
-                                                <a
-                                                    href="{{route('orders.view',['order' => $order->id])}}"
-                                                    class="btn btn-info fa fa-eye" title="مشاهده"></a>
-                                                @if($order->state=='waitForPay1' || $order->state=='waitForPay2')
-                                                    <a
-                                                        href="{{route('orders.payList',['order' => $order->id])}}"
-                                                        class="btn btn-success fa fa-money" title="پرداخت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
-                                                    <a
-                                                        href="{{route('orders.changeState',['order' => $order->id])}}"
-                                                        class="btn btn-info fa fa-refresh" title="تغییر وضعیت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin' || $order->state=='ordered')
-                                                    <a
-                                                        href="{{route('orders.edit',['order' => $order->id])}}"
-                                                        class="btn btn-warning fa fa-edit" title="ویرایش"></a>
-
-                                                    <form action="{{route('orders.destroy',['order'=>$order->id])}}"
-                                                          method="post" title="حذف">
-                                                        {{method_field('delete')}}
-                                                        {{csrf_field()}}
-                                                        <button
-                                                            class=" btn-delete-submit btn btn-danger fa fa-trash"></button>
-                                                    </form>
-
+                                                @else
+                                                    <div
+                                                        class="label label-danger"> ناموفق
+                                                    </div>
                                                 @endif
 
                                             </td>
@@ -170,7 +159,7 @@
                                 <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i>
                                 </button>
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$payments->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>

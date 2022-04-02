@@ -29,11 +29,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                سفارشات
+                پرداخت سفارش شماره {{$id}}
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> خانه</a></li>
-                <li class="active"> سفارشات</li>
+                <li class="active"> پرداخت سفارش شماره {{$id}}</li>
             </ol>
         </section>
 
@@ -41,8 +41,8 @@
         <section class="content">
             <div class="row">
                 <div class="col-md-3">
-                    <a href="{{route('orders.create')}}" class="btn btn-primary btn-block margin-bottom"> ثبت سفارش
-                        جدید</a>
+                    <a href="{{route('orders.index')}}" class="btn btn-primary btn-block margin-bottom"> بازگشت
+                    </a>
 
                     <div class="box box-solid">
                         <!-- /.box-body -->
@@ -59,10 +59,7 @@
 
                             <div class="box-tools pull-right">
                                 <div class="has-feedback">
-                                    {{--                  <form action="{{route('orders.search')}}" method="get">--}}
-                                    {{--                  <input type="text" name="search" class="form-control input-sm" placeholder="جستجو">--}}
-                                    {{--                    <button type="submit" class="fa fa-search form-control-feedback" value="search"></button>--}}
-                                    {{--                  </form>--}}
+
                                 </div>
                             </div>
                             <!-- /.box-tools -->
@@ -80,9 +77,8 @@
                                 </button>
 
                                 <div class="pull-left">
-                                {{$orders->links()}}
 
-                                <!-- /.btn-group -->
+                                    <!-- /.btn-group -->
                                 </div>
                                 <!-- /.pull-right -->
                             </div>
@@ -91,62 +87,49 @@
 
                                     <thead>
                                     <tr>
-                                        <th class="mailbox-star">کد سفارش</th>
-                                        <th class="mailbox-star"> سفارش دهنده</th>
-                                        <th class="mailbox-star"> تاریخ</th>
+                                        <th class="mailbox-star">کد پرداخت</th>
                                         <th class="mailbox-star">وضعیت</th>
+                                        <th class="mailbox-star">قیمت</th>
+                                        <th class="mailbox-star"> سررسید</th>
                                         <th class="mailbox-star">عملیات</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
-                                    @foreach($orders as $order)
+                                    @php
+                                        $i=0;
+                                        $secondPay = false;
+                                    @endphp
+                                    @foreach($payments as $pay)
                                         @php
-                                            $json = json_decode($order->meta);
+                                            $i++;
+                                            $json = json_decode($pay->meta);
                                         @endphp
                                         <tr>
-                                            <td class="mailbox-star">{{$order->id}}</td>
+                                            <td class="mailbox-star">{{$pay->id}}</td>
                                             <td class="mailbox-star dir-rtl">
-                                                {{$order->user->name}} {{$order->user->last_name}}
+                                                @if($pay->payed)پرداخت شده@elseپرداخت نشده@endif
+                                            </td>
+                                            <td class="mailbox-star dir-rtl">
+                                                {{number_format($pay->price)}} ریال
                                             </td>
                                             <td>
-                                                {{jDate($order->created_at)->format('%d %B %Y')}}
+                                                @if($pay->expired_at) {{jDate($pay->expired_at)->format('%d %B %Y')}} @endif
                                             </td>
-                                            <td class="mailbox-star">
-                                                <div
-                                                    class="label label-{{state_color($order->state)}}"> {{state_p($order->state)}} </div>
-                                            </td>
-
 
                                             <td class="mailbox-subject d-flex align-items-center justify-content-between items-m-5px">
-
-                                                <a
-                                                    href="{{route('orders.view',['order' => $order->id])}}"
-                                                    class="btn btn-info fa fa-eye" title="مشاهده"></a>
-                                                @if($order->state=='waitForPay1' || $order->state=='waitForPay2')
-                                                    <a
-                                                        href="{{route('orders.payList',['order' => $order->id])}}"
-                                                        class="btn btn-success fa fa-money" title="پرداخت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
-                                                    <a
-                                                        href="{{route('orders.changeState',['order' => $order->id])}}"
-                                                        class="btn btn-info fa fa-refresh" title="تغییر وضعیت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin' || $order->state=='ordered')
-                                                    <a
-                                                        href="{{route('orders.edit',['order' => $order->id])}}"
-                                                        class="btn btn-warning fa fa-edit" title="ویرایش"></a>
-
-                                                    <form action="{{route('orders.destroy',['order'=>$order->id])}}"
-                                                          method="post" title="حذف">
-                                                        {{method_field('delete')}}
-                                                        {{csrf_field()}}
+                                                @if($pay->payed == 0 )
+                                                    @php
+                                                        if($i==1 && $pay->payed == 1) $secondPay = true;
+                                                    @endphp
+                                                    @if($i==1 || $secondPay==true)
                                                         <button
-                                                            class=" btn-delete-submit btn btn-danger fa fa-trash"></button>
-                                                    </form>
-
+                                                            onclick="doPay({{$pay->price}},{{$pay->order_id}},{{$pay->id}})"
+                                                            class="btn btn-info" title="پرداخت">پرداخت
+                                                        </button>
+                                                    @endif
                                                 @endif
+
 
                                             </td>
 
@@ -170,9 +153,8 @@
                                 <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i>
                                 </button>
                                 <div class="pull-left">
-                                {{$orders->links()}}
 
-                                <!-- /.btn-group -->
+                                    <!-- /.btn-group -->
                                 </div>
                                 <!-- /.pull-right -->
                             </div>
@@ -206,27 +188,63 @@
     $(document).ready(function () {
         $('.page-link').addClass('btn btn-default btn-sm');
         $('.pagination').addClass('display-block');
+        @if($request->Status)
 
+        @if($request->Status=='OK' && $parameter==true)
+        Swal.fire(
+            'تبریک',
+            'پرداخت با موفقیت انجام شد',
+            'success'
+        )
+        @else
+        Swal.fire(
+            'متاسفیم',
+            'پرداخت با خطا مواجه شد',
+            'error'
+        )
+        @endif
+        @endif
     });
 
-    $('.btn-delete-submit').on('click', function (e) {
-        e.preventDefault();
-        var form = $(this).parents('form');
-        Swal.fire({
-            title: 'مایل به حذف این سفارش هستید؟',
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: 'حذف سفارش',
-            denyButtonText: `انصراف`,
-            confirmButtonColor: "#DD6B55",
+    const doPay = async (price, id, pay_id) => {
+        $.ajax({
+            url: 'https://api.zarinpal.com/pg/v4/payment/request.json',
+            type: 'POST',
+            data: {
+                "merchant_id": "1344b5d4-0048-11e8-94db-005056a205be",
+                "amount": price,
+                "callback_url": "http://localhost:8000/orders/pay/" + id + '?pay_id=' + pay_id,
+                "description": "پرداخت قسط سفارش شماره " + id,
+            },
+            dataType: 'json',
+            success: function (data) {
+                console.log(data.data)
+                $.ajax({
+                    url: "{{route('user.setTransaction')}}",
+                    type: 'POST',
+                    data: {
+                        "user_id":{{\Illuminate\Support\Facades\Auth::user()->id}},
+                        "price": price,
+                        "pay_terminal": 'zarrinPal',
+                        "transaction_token": data.data.authority,
+                        "transaction_code": pay_id
+                    },
+                    dataType: 'json',
+                    success: function (data2) {
+                        console.log(data2.data)
+                        window.location.href = 'https://www.zarinpal.com/pg/StartPay/' + data.data.authority
+                    },
+                    error: function (request, error) {
+                        alert("Request: " + JSON.stringify(request));
+                    }
+                });
 
-        }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-                form.submit();
+            },
+            error: function (request, error) {
+                alert("Request: " + JSON.stringify(request));
             }
-        })
-    });
+        });
+    }
 
 </script>
 </body>

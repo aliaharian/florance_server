@@ -19,4 +19,12 @@ class Address extends Model
         'meta',
         'address'
     ];
+
+
+    function province(){
+        return $this->belongsTo(Province::class);
+    }
+    function city(){
+        return $this->belongsTo(City::class);
+    }
 }

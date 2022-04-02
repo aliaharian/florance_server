@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> سفارشات</title>
+    <title> تیکت ها</title>
 
     @include('admin.includes.headerLinks')
 
@@ -29,11 +29,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                سفارشات
+                تیکت ها
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> خانه</a></li>
-                <li class="active"> سفارشات</li>
+                <li class="active"> تیکت ها</li>
             </ol>
         </section>
 
@@ -41,9 +41,9 @@
         <section class="content">
             <div class="row">
                 <div class="col-md-3">
-                    <a href="{{route('orders.create')}}" class="btn btn-primary btn-block margin-bottom"> ثبت سفارش
+                    <a href="{{route('tickets.create')}}"
+                       class="btn btn-primary btn-block margin-bottom"> ثبت تیکت
                         جدید</a>
-
                     <div class="box box-solid">
                         <!-- /.box-body -->
                     </div>
@@ -55,7 +55,7 @@
                 <div class="col-md-9">
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">سفارشات</h3>
+                            <h3 class="box-title">تیکت ها</h3>
 
                             <div class="box-tools pull-right">
                                 <div class="has-feedback">
@@ -80,7 +80,7 @@
                                 </button>
 
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$tickets->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>
@@ -91,63 +91,42 @@
 
                                     <thead>
                                     <tr>
-                                        <th class="mailbox-star">کد سفارش</th>
-                                        <th class="mailbox-star"> سفارش دهنده</th>
-                                        <th class="mailbox-star"> تاریخ</th>
+                                        <th class="mailbox-star">کد تیکت</th>
+                                        <th class="mailbox-star"> عنوان</th>
+                                        @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
+                                            <th class="mailbox-star"> کاربر</th>
+                                        @endif
+                                        <th class="mailbox-star">تاریخ</th>
                                         <th class="mailbox-star">وضعیت</th>
                                         <th class="mailbox-star">عملیات</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
-                                    @foreach($orders as $order)
+                                    @foreach($tickets as $ticket)
                                         @php
-                                            $json = json_decode($order->meta);
+                                            $json = json_decode($ticket->meta );
                                         @endphp
                                         <tr>
-                                            <td class="mailbox-star">{{$order->id}}</td>
+                                            <td class="mailbox-star">{{$ticket->id}}</td>
                                             <td class="mailbox-star dir-rtl">
-                                                {{$order->user->name}} {{$order->user->last_name}}
+                                                {{$ticket->title}}
                                             </td>
+                                            @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
+                                                <td class="mailbox-star dir-rtl">
+                                                    {{$ticket->user->name}} {{$ticket->user->last_name}}
+                                                </td>
+                                            @endif
                                             <td>
-                                                {{jDate($order->created_at)->format('%d %B %Y')}}
+                                                {{jDate($ticket->created_at)->format('%d %B %Y')}}
                                             </td>
                                             <td class="mailbox-star">
-                                                <div
-                                                    class="label label-{{state_color($order->state)}}"> {{state_p($order->state)}} </div>
+                                               <div style="margin: 0;padding: 5px 10px;text-align: center" class="alert alert-{{ticket_state_color($ticket->state)}}"> {{ticketStatusP($ticket->state)}}</div>
                                             </td>
-
-
-                                            <td class="mailbox-subject d-flex align-items-center justify-content-between items-m-5px">
-
+                                            <td class="mailbox-star">
                                                 <a
-                                                    href="{{route('orders.view',['order' => $order->id])}}"
-                                                    class="btn btn-info fa fa-eye" title="مشاهده"></a>
-                                                @if($order->state=='waitForPay1' || $order->state=='waitForPay2')
-                                                    <a
-                                                        href="{{route('orders.payList',['order' => $order->id])}}"
-                                                        class="btn btn-success fa fa-money" title="پرداخت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
-                                                    <a
-                                                        href="{{route('orders.changeState',['order' => $order->id])}}"
-                                                        class="btn btn-info fa fa-refresh" title="تغییر وضعیت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin' || $order->state=='ordered')
-                                                    <a
-                                                        href="{{route('orders.edit',['order' => $order->id])}}"
-                                                        class="btn btn-warning fa fa-edit" title="ویرایش"></a>
-
-                                                    <form action="{{route('orders.destroy',['order'=>$order->id])}}"
-                                                          method="post" title="حذف">
-                                                        {{method_field('delete')}}
-                                                        {{csrf_field()}}
-                                                        <button
-                                                            class=" btn-delete-submit btn btn-danger fa fa-trash"></button>
-                                                    </form>
-
-                                                @endif
-
+                                                    href="{{route('tickets.show',['ticket' => $ticket->id])}}"
+                                                    class="btn btn-info" title="ویرایش">مشاهده تیکت</a>
                                             </td>
 
                                         </tr>
@@ -170,7 +149,7 @@
                                 <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i>
                                 </button>
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$tickets->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>

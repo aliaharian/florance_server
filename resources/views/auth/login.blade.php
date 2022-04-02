@@ -48,9 +48,9 @@
                     <form method="POST" action="{{ route('login') }}" class="register-form" id="login-form">
                         @csrf
 
-                        @if ($errors->has('email'))
+                        @if ($errors->has('phone'))
                             <div class="alert alert-danger text-center" style="direction: rtl" role="alert">
-                                {{ $errors->first('email') }}
+                                {{ $errors->first('phone') }}
                             </div>
                         @endif
                         @if ($errors->has('password'))
@@ -59,8 +59,8 @@
                             </div>
                         @endif
                         <div class="form-group">
-                            <label for="email" ><i class="fa fa-user material-icons-name"></i></label>
-                            <input type="text" name="email"  id="email" placeholder="ایمیل" value="{{ old('email') }}" required autofocus/>
+                            <label for="phone" ><i class="fa fa-phone material-icons-name"></i></label>
+                            <input type="tel" name="phone"  id="phone" placeholder="شماره موبایل" value="{{ old('phone') }}" required autofocus/>
                         </div>
 
 

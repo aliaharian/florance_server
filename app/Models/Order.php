@@ -30,4 +30,50 @@ class Order extends Model
         'post_price',
         'address_id'
     ];
+
+    function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    function attachment()
+    {
+        return $this->belongsTo(Attachment::class);
+    }
+
+    function bowl_material()
+    {
+        return $this->belongsTo(Material::class, 'bowl_material_id');
+    }
+
+    function cabin_material()
+    {
+        return $this->belongsTo(Material::class, 'cabin_material_id');
+    }
+
+    function surface_material()
+    {
+        return $this->belongsTo(Material::class, 'surface_material_id');
+    }
+
+    function mirror_material()
+    {
+        return $this->belongsTo(Material::class, 'mirror_material_id');
+    }
+
+    function drawer_material()
+    {
+        return $this->belongsTo(Material::class, 'drawer_material_id');
+    }
+
+    function color()
+    {
+        return $this->belongsTo(Color::class);
+    }
+    function address(){
+        return $this->belongsTo(Address::class);
+
+    }
+
+
 }

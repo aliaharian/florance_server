@@ -29,7 +29,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -53,9 +53,28 @@ class RegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:255', 'unique:users'],
+            'phone' => ['required', 'iran_mobile', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+        ],
+            [
+                'name.required' => 'نام خود را وارد کنید',
+                'name.string' => 'نام باید به حروف باشد',
+                'name.max' => 'نام حداکثر باید ۲۵۵ کاراکتر باشد',
+                'last_name.required' => 'نام خانوادگی خود را وارد کنید',
+                'last_name.string' => 'نام خانوادگی باید به حروف باشد',
+                'last_name.max' => 'نام خانوادگی حداکثر باید ۲۵۵ کاراکتر باشد',
+                'email.required' => 'ایمیل خود را وارد کنید',
+                'email.string' => 'ایمیل باید به حروف باشد',
+                'email.max' => 'ایمیل حداکثر باید ۲۵۵ کاراکتر باشد',
+                'email.email' => 'ایمیل صحیح نیست',
+                'email.unique' => 'این ایمیل قبلا در سیستم ثبت شده',
+                'phone.required' => 'شماره تماس خود را وارد کنید',
+                'phone.unique' => 'این شماره تماس قبلا در سیستم ثبت شده',
+                'phone.iran_mobile' => 'شماره موبایل صحیح نیست',
+                'password.unique' => 'کلمه عبور خود را وارد کنید',
+                'password.min' => 'کلمه عبور باید حداقل ۸ کاراکتر باشد',
+                'password.confirmed' => 'کلمه عبور ها یکسان نیستند',
+            ]);
     }
 
     /**
@@ -66,6 +85,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+
         return User::create([
             'name' => $data['name'],
             'last_name' => $data['last_name'],

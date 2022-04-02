@@ -5029,7 +5029,23 @@ table.text-center th {
 .align-items-center{
     align-items: center;
 }
-
+.items-m-5px > *{
+    margin: 0 5px;
+}
+.dir-rtl{
+    direction: rtl !important;
+}
 .justify-content-between{
     justify-content: space-between;
+}
+
+.ml-30p{
+    margin-left: 30%;
+}
+.mr-30p{
+    margin-right: 30%;
+}
+.ticketMsg img{
+    width:100% !important;
+    height: auto !important;
 }

@@ -1,7 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ثبت سفارش</title>
+    <title>
+        @if($order)
+            ویرایش سفارش
+        @else
+            ثبت سفارش
+        @endif
+    </title>
 
     @include('admin.includes.headerLinks')
     <style>
@@ -59,17 +65,31 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                ثبت سفارش
+                @if($order)
+                    ویرایش سفارش
+                @else
+                    ثبت سفارش
+                @endif
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> خانه</a></li>
                 <li>سفارشات</li>
-                <li class="active">ثبت سفارش</li>
+                <li class="active">
+                    @if($order)
+                        ویرایش سفارش
+                    @else
+                        ثبت سفارش
+                    @endif
+                </li>
             </ol>
         </section>
-        <form action="{{route('orders.store')}}" method="post" enctype="multipart/form-data">
+        <form
+            action="@if($order){{route('orders.update',['order' => $order->id])}}@else{{route('orders.store')}} @endif"
+            method="post" enctype="multipart/form-data">
         {{csrf_field()}}
-
+        @if($order)
+            {{method_field('put')}}
+        @endif
         <!-- Main content -->
             <section class="content">
                 <div class="row">
@@ -115,10 +135,17 @@
                             <!-- /.box-header -->
                             <div class="box-body no-padding">
                                 <div class="input-group" style="width: 100%;padding: 10px">
-                                    <div id="picture" style="width: 100%;margin: 5px auto;"></div>
-                                    <button type="button" class="browse btn btn-primary" id="imageUpload"
-                                            style="width: 100%;padding: 10px;margin: auto"> انتخاب تصویر
-                                    </button>
+                                    <div id="picture" style="width: 100%;margin: 5px auto;">
+                                        @if($order && $order->attachment_id)
+                                            <img style="width: 100%" src="/files/{{$order->attachment->path}}"/>
+                                        @endif
+
+                                    </div>
+                                    @if(!$order)
+                                        <button type="button" class="browse btn btn-primary" id="imageUpload"
+                                                style="width: 100%;padding: 10px;margin: auto"> انتخاب تصویر
+                                        </button>
+                                    @endif
                                     <input type="text" hidden name="mainImage" style="width: 100%;height: 100%"
                                            id="featured_image" placeholder="آدرس تصویر" readonly/>
                                     <input type="hidden" name="featured_image_obj" id="featured_image_obj">
@@ -132,6 +159,7 @@
                     </div>
                     <!-- /.col -->
                     <div class="col-md-9">
+
                         <div class="box box-primary">
                             <div class="box-header with-border">
                                 <h3 class="box-title">مشخصات سفارش</h3>
@@ -141,14 +169,18 @@
                                 <div class="form-group col-sm-6">
                                     <label for="cabin_size">ابعاد کابین</label>
 
-                                    <input value="{{old('cabin_size')}}" class="form-control" name="cabin_size" id="cabin_size"
+                                    <input value="{{$order?$order->cabin_size:old('cabin_size')}}" class="form-control"
+                                           name="cabin_size"
+                                           id="cabin_size"
                                            placeholder="طول و عرض و ارتفاع کابین">
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <label for="cabin_material">متریال کابین</label>
                                     <select class="form-control" name="cabin_material" id="cabin_material">
                                         @foreach($cabinMaterials as $material)
-                                            <option @if (old('cabin_material') == $material->id) selected @endif value="{{$material->id}}">{{$material->name}}</option>
+                                            <option
+                                                @if ($order?$order->cabin_material_id==$material->id : old('cabin_material') == $material->id) selected
+                                                @endif value="{{$material->id}}">{{$material->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -157,7 +189,9 @@
                                     <label for="bowl_material">متریال کاسه</label>
                                     <select class="form-control" name="bowl_material" id="bowl_material">
                                         @foreach($bowlMaterials as $material)
-                                            <option @if (old('bowl_material') == $material->id) selected @endif value="{{$material->id}}">{{$material->name}}</option>
+                                            <option
+                                                @if ($order?$order->bowl_material_id==$material->id : old('bowl_material') == $material->id) selected
+                                                @endif value="{{$material->id}}">{{$material->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -167,7 +201,9 @@
                                     <label for="surface_material">متریال صفحه</label>
                                     <select class="form-control" name="surface_material" id="surface_material">
                                         @foreach($surfaceMaterials as $material)
-                                            <option  @if (old('surface_material') == $material->id) selected @endif  value="{{$material->id}}">{{$material->name}}</option>
+                                            <option
+                                                @if ($order?$order->surface_material_id==$material->id : old('surface_material') == $material->id) selected
+                                                @endif  value="{{$material->id}}">{{$material->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -179,7 +215,9 @@
                                 <div class="form-group col-sm-6">
                                     <label for="mirror_size">ابعاد آینه</label>
 
-                                    <input value="{{old('mirror_size')}}" class="form-control" name="mirror_size" id="mirror_size"
+                                    <input value="{{$order?$order->mirror_size:old('mirror_size')}}"
+                                           class="form-control" name="mirror_size"
+                                           id="mirror_size"
                                            placeholder="طول و عرض آینه">
                                 </div>
                                 <div class="form-group col-sm-6">
@@ -188,7 +226,9 @@
                                         <option value="mirror0">بدون آینه</option>
 
                                         @foreach($mirrorMaterials as $material)
-                                            <option @if (old('mirror_material') == $material->id) selected @endif value="{{$material->id}}">{{$material->name}}</option>
+                                            <option
+                                                @if ($order?$order->mirror_material_id==$material->id : old('mirror_material') == $material->id) selected
+                                                @endif value="{{$material->id}}">{{$material->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -198,7 +238,9 @@
                                         <option value="drawer0">بدون کشو</option>
 
                                         @foreach($drawerMaterials as $material)
-                                            <option @if (old('drawer_material') == $material->id) selected @endif value="{{$material->id}}">{{$material->name}}</option>
+                                            <option
+                                                @if ($order?$order->drawer_material_id==$material->id : old('drawer_material') == $material->id) selected
+                                                @endif value="{{$material->id}}">{{$material->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -206,7 +248,9 @@
                                     <label for="color">رنگ</label>
                                     <select class="form-control" name="color" id="color">
                                         @foreach($colors as $color)
-                                            <option @if (old('color') == $material->id) selected @endif value="{{$color->id}}">{{$color->name}}</option>
+                                            <option
+                                                @if ($order ? $order->color_id == $color->id : old('color') == $color->id) selected
+                                                @endif value="{{$color->id}}">{{$color->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -215,7 +259,7 @@
                                 <div class="form-group col-sm-12">
                                     <label for="color">توضیحات سفارش</label>
                                     <textarea id="ckeditor" name="description" class="form-control"
-                                              style="height: 300px">{!!  old('description') !!}</textarea>
+                                              style="height: 300px">{!!  $order?$order->description:old('description') !!}</textarea>
                                 </div>
 
                             </div>
@@ -242,7 +286,10 @@
                                                 @php
                                                     $json = json_decode($address->meta);
                                                 @endphp
-                                                <option @if (old('address_id') == $address->id) selected @endif value="{{$address->id}}">{{$address->name}} {{$address->last_name}} - کد پستی: {{$json->postalCode}}</option>
+                                                <option
+                                                    @if ($order?$order->address_id == $address->id :old('address_id') == $address->id) selected
+                                                    @endif value="{{$address->id}}">{{$address->name}} {{$address->last_name}}
+                                                    - کد پستی: {{$json->postalCode}}</option>
                                             @endforEach
                                         </select>
                                     </div>
@@ -264,7 +311,8 @@
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <label for="last_name">نام خانوادگی</label>
-                                    <input value="{{old('last_name')}}" class="form-control" name="last_name" id="last_name"
+                                    <input value="{{old('last_name')}}" class="form-control" name="last_name"
+                                           id="last_name"
                                            placeholder="نام خانوادگی تحویل گیرنده">
                                 </div>
                                 <div class="form-group col-sm-6">
@@ -272,7 +320,8 @@
                                     <select class="form-control" name="province" id="province">
                                         <option value="province0">انتخاب کنید</option>
                                         @foreach($provinces as $province)
-                                            <option @if (old('province') == $province->id) selected @endif value="{{$province->id}}">{{$province->name}}</option>
+                                            <option @if (old('province') == $province->id) selected
+                                                    @endif value="{{$province->id}}">{{$province->name}}</option>
                                         @endforEach
                                     </select>
                                 </div>
@@ -290,7 +339,8 @@
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <label for="postalCode">کد پستی</label>
-                                    <input value="{{old('postalCode')}}" class="form-control" name="postalCode" id="postalCode"
+                                    <input value="{{old('postalCode')}}" class="form-control" name="postalCode"
+                                           id="postalCode"
                                            placeholder="کد پستی">
                                 </div>
 
@@ -311,7 +361,13 @@
                                 <div class="pull-right">
 
                                     <button type="submit" class="btn btn-primary"><i
-                                            class="fa fa-share"></i> ثبت سفارش
+                                            class="fa fa-share"></i>
+                                        @if($order)
+                                            ویرایش سفارش
+                                        @else
+                                            ثبت سفارش
+                                        @endif
+
                                     </button>
                                 </div>
                             </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> سفارشات</title>
+    <title> لیست آدرس های {{$name}}</title>
 
     @include('admin.includes.headerLinks')
 
@@ -29,11 +29,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                سفارشات
+                لیست آدرس های {{$name}}
             </h1>
             <ol class="breadcrumb">
                 <li><a href="#"><i class="fa fa-dashboard"></i> خانه</a></li>
-                <li class="active"> سفارشات</li>
+                <li class="active"> لیست آدرس های {{$name}}</li>
             </ol>
         </section>
 
@@ -41,9 +41,9 @@
         <section class="content">
             <div class="row">
                 <div class="col-md-3">
-                    <a href="{{route('orders.create')}}" class="btn btn-primary btn-block margin-bottom"> ثبت سفارش
+                    <a href="@if($admin){{route('userAddresses.create',['user'=>$user->id])}}@else{{route('addresses.create')}}@endif"
+                       class="btn btn-primary btn-block margin-bottom"> ثبت آدرس
                         جدید</a>
-
                     <div class="box box-solid">
                         <!-- /.box-body -->
                     </div>
@@ -55,14 +55,11 @@
                 <div class="col-md-9">
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <h3 class="box-title">سفارشات</h3>
+                            <h3 class="box-title">لیست آدرس های {{$name}}</h3>
 
                             <div class="box-tools pull-right">
                                 <div class="has-feedback">
-                                    {{--                  <form action="{{route('orders.search')}}" method="get">--}}
-                                    {{--                  <input type="text" name="search" class="form-control input-sm" placeholder="جستجو">--}}
-                                    {{--                    <button type="submit" class="fa fa-search form-control-feedback" value="search"></button>--}}
-                                    {{--                  </form>--}}
+
                                 </div>
                             </div>
                             <!-- /.box-tools -->
@@ -80,7 +77,7 @@
                                 </button>
 
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$addresses->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>
@@ -91,64 +88,52 @@
 
                                     <thead>
                                     <tr>
-                                        <th class="mailbox-star">کد سفارش</th>
-                                        <th class="mailbox-star"> سفارش دهنده</th>
-                                        <th class="mailbox-star"> تاریخ</th>
-                                        <th class="mailbox-star">وضعیت</th>
+                                        <th class="mailbox-star">کد آدرس</th>
+                                        <th class="mailbox-star"> نام و نام خانوادگی</th>
+                                        <th class="mailbox-star">شهر</th>
+                                        <th class="mailbox-star">کد پستی</th>
+                                        <th class="mailbox-star">تلفن</th>
                                         <th class="mailbox-star">عملیات</th>
                                     </tr>
                                     </thead>
 
                                     <tbody>
-                                    @foreach($orders as $order)
+                                    @foreach($addresses as $address)
                                         @php
-                                            $json = json_decode($order->meta);
+                                            $json = json_decode($address->meta);
                                         @endphp
                                         <tr>
-                                            <td class="mailbox-star">{{$order->id}}</td>
+                                            <td class="mailbox-star">{{$address->id}}</td>
                                             <td class="mailbox-star dir-rtl">
-                                                {{$order->user->name}} {{$order->user->last_name}}
+                                                {{$address->name}} {{$address->last_name}}
                                             </td>
                                             <td>
-                                                {{jDate($order->created_at)->format('%d %B %Y')}}
+                                                {{$address->city->name}}
                                             </td>
-                                            <td class="mailbox-star">
-                                                <div
-                                                    class="label label-{{state_color($order->state)}}"> {{state_p($order->state)}} </div>
+                                            <td>
+                                                {{$json->postalCode}}
                                             </td>
-
-
+                                            <td>
+                                                {{$address->phone}}
+                                            </td>
                                             <td class="mailbox-subject d-flex align-items-center justify-content-between items-m-5px">
 
                                                 <a
-                                                    href="{{route('orders.view',['order' => $order->id])}}"
-                                                    class="btn btn-info fa fa-eye" title="مشاهده"></a>
-                                                @if($order->state=='waitForPay1' || $order->state=='waitForPay2')
-                                                    <a
-                                                        href="{{route('orders.payList',['order' => $order->id])}}"
-                                                        class="btn btn-success fa fa-money" title="پرداخت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin')
-                                                    <a
-                                                        href="{{route('orders.changeState',['order' => $order->id])}}"
-                                                        class="btn btn-info fa fa-refresh" title="تغییر وضعیت"></a>
-                                                @endif
-                                                @if(\Illuminate\Support\Facades\Auth::user()->role=='admin' || $order->state=='ordered')
-                                                    <a
-                                                        href="{{route('orders.edit',['order' => $order->id])}}"
-                                                        class="btn btn-warning fa fa-edit" title="ویرایش"></a>
+                                                    href="@if($admin){{route('userAddresses.edit',['user' => $user->id,'address' => $address->id])}}@else{{route('addresses.edit',['address' => $address->id])}}@endif"
+                                                    class="btn btn-warning fa fa-edit" title="ویرایش"></a>
 
-                                                    <form action="{{route('orders.destroy',['order'=>$order->id])}}"
-                                                          method="post" title="حذف">
-                                                        {{method_field('delete')}}
-                                                        {{csrf_field()}}
-                                                        <button
-                                                            class=" btn-delete-submit btn btn-danger fa fa-trash"></button>
-                                                    </form>
+                                                <form
+                                                    action="@if($admin){{route('userAddresses.destroy',['user' => $user->id,'address' => $address->id])}}@else{{route('addresses.destroy',['address'=>$address->id])}}@endif"
+                                                    method="post" title="حذف">
+                                                    {{method_field('delete')}}
+                                                    {{csrf_field()}}
+                                                    <button
+                                                        class=" btn-delete-submit btn btn-danger fa fa-trash"></button>
+                                                </form>
 
-                                                @endif
 
                                             </td>
+
 
                                         </tr>
                                     @endforeach
@@ -170,7 +155,7 @@
                                 <button type="button" class="btn btn-default btn-sm"><i class="fa fa-refresh"></i>
                                 </button>
                                 <div class="pull-left">
-                                {{$orders->links()}}
+                                {{$addresses->links()}}
 
                                 <!-- /.btn-group -->
                                 </div>
@@ -213,10 +198,10 @@
         e.preventDefault();
         var form = $(this).parents('form');
         Swal.fire({
-            title: 'مایل به حذف این سفارش هستید؟',
+            title: 'مایل به حذف این آدرس هستید؟',
             showDenyButton: true,
             showCancelButton: false,
-            confirmButtonText: 'حذف سفارش',
+            confirmButtonText: 'حذف آدرس',
             denyButtonText: `انصراف`,
             confirmButtonColor: "#DD6B55",
 

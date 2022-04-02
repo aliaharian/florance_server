@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,3 +21,9 @@ Route::get('/migrate', function(){
     \Artisan::call('migrate');
     dd('migrated!');
 });
+Route::group(['prefix' => 'user'], function () {
+    Route::post('/setTransaction', [UserController::class, 'setTransaction'])->name('user.setTransaction');
+    Route::post('/sendCode', [UserController::class, 'sendCode'])->name('user.sendCode');
+
+});
+

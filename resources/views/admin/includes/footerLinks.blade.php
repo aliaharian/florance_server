@@ -21,6 +21,8 @@
 <!-- AdminLTE for demo purposes -->
 <script src="/panel-admin/js/demo.js"></script>
 <script src="https://arastowel.com/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 
     CKEDITOR.replace( 'ckeditor', {

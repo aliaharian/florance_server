@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class isAdmin
+class VerifyPhone
 {
     /**
      * Handle an incoming request.
@@ -17,12 +17,8 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!Auth::user()) {
-            abort(403);
-        } elseif (Auth::user()->phone_verified_at == null) {
+        if (Auth::user()->phone_verified_at == null) {
             return redirect('/verifyPhone');
-        } elseif (Auth::user()->role != 'admin') {
-            abort(403);
         }
         return $next($request);
     }

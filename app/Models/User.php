@@ -27,6 +27,9 @@ class User extends Authenticatable
         'role',
         'active',
         'password',
+        'meta',
+        'sheba_number',
+        'phone_verified_at'
     ];
 
     /**

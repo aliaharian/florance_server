@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name=”robots” content=”noindex,nofollow”>
 
-    <title>ریست کلمه عبور</title>
+    <title>تایید شماره همراه</title>
 
     <!-- Font Icon -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
@@ -38,16 +38,21 @@
         <div class="container">
             <div class="signin-content">
                 <div class="signin-image">
-                    <figure><img src="/images/loginBanner.jpeg" alt="ریست کلمه عبور  "></figure>
+                    <figure><img src="/images/loginBanner.jpeg" alt="تایید شماره همراه  "></figure>
                     {{--                    <a href="{{route('index')}}" class="signup-image-link">بازگشت به صفحه اصلی</a>--}}
-                    <a class="signup-image-link" href="{{ route('login') }}">
-                        ورود به حساب کاربری
+                    <a class="signup-image-link" href="{{ route('logout') }}"
+                       onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                        تغییر شماره همراه
                     </a>
 
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
                 </div>
                 <div class="signin-form" style="    margin-top: 16px;">
-                    <h2 class="form-title text-md-center">ریست کلمه عبور </h2>
-                    <form method="POST" action="{{ route('user.resetPassword') }}" class="register-form" id="login-form">
+                    <h2 class="form-title text-md-center">تایید شماره همراه </h2>
+                    <form method="POST" action="{{ route('user.verifyCode') }}" class="register-form" id="login-form">
                         @csrf
                         @if ($errors->any())
                             <div class="alert alert-danger">
@@ -65,9 +70,7 @@
                         @endif
                         <div class="mb-4 d-flex align-items-center justify-content-between">
                             <div>
-{{--                                <label for="phone"><i class="fa fa-phone"></i></label>--}}
-                                <input type="tel" value="" name="phone" id="phone" required
-                                       placeholder="شماره موبایل"/>
+                                <p>{{\Illuminate\Support\Facades\Auth::user()->phone}}</p>
                             </div>
                             <div>
                                 <div onclick="sendCode()" class="btn btn-info">ارسال کد</div>
@@ -82,19 +85,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="pass"><i class="fa fa-lock"></i></label>
-                            <input type="password" name="password" required id="pass" placeholder="کلمه عبور جدید"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="re-pass"><i class="fa fa-lock"></i></label>
-                            <input type="password" name="password_confirmation" required id="password_confirmation"
-                                   placeholder="تکرار کلمه عبور جدید"/>
+                            <label for="password"><i class="fa fa-lock"></i></label>
                         </div>
 
                         <div class="form-group form-button">
                             <input type="submit" name="signin" id="signin" class="form-submit"
-                                   value="ریست کلمه عبور"/>
-                            {{--                            <a href="/auth/google" style="background-color: #fd2c27;" id="signin2" class="form-submit"> ریست کلمه عبور با گوگل <i class="fa fa-google"> </i></a>--}}
+                                   value="تایید شماره همراه"/>
+                            {{--                            <a href="/auth/google" style="background-color: #fd2c27;" id="signin2" class="form-submit"> تایید شماره همراه با گوگل <i class="fa fa-google"> </i></a>--}}
                         </div>
                     </form>
                     {{--<div class="social-login">--}}
@@ -118,48 +115,39 @@
 
 <script>
     const sendCode = () => {
-        let phone = $('#phone').val();
-        if (phone === '') {
-            Swal.fire(
-                'کد ارسال نشد',
-                'شماره موبایل خود را وارد کنید',
-                'error'
-            )
-        } else {
-            $.ajax({
-                url: "{{route('user.sendCode')}}",
-                type: 'POST',
-                data: {
-                    "phone": phone
-                },
-                dataType: 'json',
-                success: function (data2) {
-                    console.log(data2)
-                    if (data2.success === true) {
-                        Swal.fire(
-                            'تبریک',
-                            'کد ارسال شد',
-                            'success'
-                        )
-                    } else {
-                        Swal.fire(
-                            'کد ارسال نشد',
-                            data2.text,
-                            'error'
-                        )
-                    }
-                },
-                error: function (request, error) {
-                    console.log(request.responseJSON)
-                    console.log(error)
+        $.ajax({
+            url: "{{route('user.sendCode')}}",
+            type: 'POST',
+            data: {
+                "phone": "{{\Illuminate\Support\Facades\Auth::user()->phone}}"
+            },
+            dataType: 'json',
+            success: function (data2) {
+                console.log(data2)
+                if (data2.success === true) {
+                    Swal.fire(
+                        'تبریک',
+                        'کد ارسال شد',
+                        'success'
+                    )
+                }else{
                     Swal.fire(
                         'کد ارسال نشد',
-                        `برای ارسال کد ${request.responseJSON.diff} ثانیه دیگر مجدد تلاش کنید`,
+                        data2.text,
                         'error'
                     )
                 }
-            });
-        }
+            },
+            error: function (request, error) {
+                console.log(request.responseJSON)
+                console.log(error)
+                Swal.fire(
+                    'کد ارسال نشد',
+                    `برای ارسال کد ${request.responseJSON.diff} ثانیه دیگر مجدد تلاش کنید`,
+                    'error'
+                )
+            }
+        });
     }
 </script>
 </body>
